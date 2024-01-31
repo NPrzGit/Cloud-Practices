@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarqube
+  namespace: inspect-code-tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: sonarqube
+      app: sonarqube-server
+template:
+  metada:
+    name: sonar
+    labels:
+      name: sonar
+      app: sonarqube-server
+  spec:
+    containers:
+      - name: sonarqube
+        image: sonarqube:lts-community
+        env:
+          - name: SONAR_JDBC_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-pwd
+                key: password
+          - name: "SONAR_JDBC_USERNAME"
+            value: "sonar390.Q#b$_U"
+          - name: SONAR_JDBC_URL
+            value: jdbc:postgresql://postgres:5432/sonar
+        resources:
+         limits:
+           memory: "3Gi"
+           cpu: "1000m"
+        ports:
+          - name: sonarport
+            containerPort: 9000
+        volumeMounts:
+          - name: sonarqube-data
+            mountPath: /opt/sonarqube/data
+          - name: sonarqube-conf
+            mountPath: /opt/sonarqube/conf
+          - name: sonarqube-extensions
+            mountPath: /opt/sonarqube/extensions
+          - name: sonarqube-bundled-plugins
+            mountPath: /opt/sonarqube/lib/bundled-plugins
+          - name: sonarqube-logs
+            mountPath: /opt/sonarqube/logs
+    volumes:
+      - name: sonarqube-data
+        persistentVolumeClaim:
+          claimName: sonarqube-data-pvc
+      - name: sonarqube-conf
+        persistentVolumeClaim:
+          claimName: sonarqube-conf-pvc
+      - name: sonarqube-extensions
+        persistentVolumeClaim:
+          claimName: sonarqube-extensions-pvc
+      - name: sonarqube-bundled-plugins
+        persistentVolumeClaim:
+          claimName: sonarqube-bundled-plugins-pvc
+      - name: sonarqube-logs
+        persistentVolumeClaim:
+          claimName: sonarqube-logs-pvc

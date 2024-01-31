@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: inspect-code-tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: jenkins
+      app: jenkins-server
+template:
+  metada:
+    name: jenkins
+    labels:
+      name: jenkins
+      app: jenkins-server
+  spec:
+    containers:
+      - name: jenkins
+        image: jenkins/jenkins:lts
+        resources:
+         limits:
+           memory: "2Gi"
+           cpu: "1000m"
+        ports:
+          - name: httpport
+            containerPort: 8080
+          - name: jnlpport
+            containerPort: 50000
+        volumeMounts:
+          - name: jenkins-data
+            mountPath: /var/jenkins_home
+    volumes:
+      - name: jenkins-data
+        persistentVolumeClaim:
+          claimName: jenkins-pvc

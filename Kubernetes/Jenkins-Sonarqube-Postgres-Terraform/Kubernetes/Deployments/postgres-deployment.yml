@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: inspect-code-tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: postgres
+      app: postgres-server
+template:
+  metada:
+    name: postgres
+    labels:
+      name: postgres
+      app: postgres-server
+  spec:
+    containers:
+      - name: postgres
+        image: postgres:12
+        env:
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-pwd
+                key: password
+          - name: POSTGRES_USER
+            value: sonar390.Q#b$_U
+        resources:
+         limits:
+           memory: "3Gi"
+           cpu: "1000m"
+        ports:
+          - name: postgresport
+            containerPort: 5432
+        volumeMounts:
+          - name: postgresql
+            mountPath: /var/lib/postgresql
+          - name: postgresql-data
+            mountPath: /var/lib/postgresql/data
+    volumes:
+      - name: postgresql
+        persistentVolumeClaim:
+          claimName: postgresql-pvc
+      - name: postgresql-data
+        persistentVolumeClaim:
+          claimName: postgresql-data-pvc

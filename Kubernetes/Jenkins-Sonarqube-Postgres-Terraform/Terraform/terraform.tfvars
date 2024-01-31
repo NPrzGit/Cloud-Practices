@@ -1,0 +1,5 @@
+digitalocean_token = ""
+kubernetes_region = "NYC1"
+kubernetes_version = "1.29.0-do.0"
+worker_size = "s-2vcpu-4gb"
+worker_count = "3"
