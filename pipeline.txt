@@ -1,0 +1,15 @@
+pipeline {
+    agent any
+    parameters {
+        base64File description: 'Por favor cargue un archivo cbl para el análisis y evaluación del código', name: 'FILE'
+    }
+    stages {
+        stage('estado1') {
+            steps {
+                withFileParameter('FILE') {
+                    sh 'cat $FILE'
+                }
+            }
+        }
+    }
+}
