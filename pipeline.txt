@@ -13,3 +13,67 @@ pipeline {
         }
     }
 }
+
+V2 Modificacion - no test
+pipeline {
+    agent any
+    environment {
+        SONARQUBE_SCANNER_HOME = tool 'SonarQubeScanner'
+        SONARQUBE_LOGIN_TOKEN = credentials('SonarQubeLoginToken')
+        SONARQUBE_SERVER_URL = 'http://tu-servidor-sonarqube:9000'
+        SONARQUBE_PROJECT_KEY = 'mi-proyecto'
+        SONARQUBE_PROJECT_NAME = 'Mi-Proyecto'
+        SONARQUBE_PROJECT_VERSION = '1.0'
+    }
+    parameters {
+        base64File description: 'Por favor cargue un archivo cbl para el análisis y evaluación del código', name: 'FILE'
+        string(name: 'correoDestino',  description: 'Correo electrónico de destino')
+    }
+    stages {
+        stage('Validación basico correo') {
+            steps {
+                script {
+                    if (params.correoDestino.trim() == "") {
+                        error "El parámetro de correo no puede estar vacío."
+                    }
+                }
+            }
+        }
+        stage('Cargar Archivo') {
+            steps {
+                withFileParameter('FILE') {
+                    sh 'cat $FILE'
+                }
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    sh """
+                        ${SONARQUBE_SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.login=${SONARQUBE_LOGIN_TOKEN} \
+                        -Dsonar.host.url=${SONARQUBE_SERVER_URL} \
+                        -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
+                        -Dsonar.projectName=${SONARQUBE_PROJECT_NAME} \
+                        -Dsonar.projectVersion=${SONARQUBE_PROJECT_VERSION} \
+                        -Dsonar.sourceEncoding=UTF-8
+                    """
+                }
+            }
+        }
+        post {
+            always {
+                script {
+                    sh """
+                        curl -o sonarqube-report.pdf \
+                        "${SONARQUBE_SERVER_URL}/api/project_reports/download?projectKey=${SONARQUBE_PROJECT_KEY}&format=pdf"
+                    """
+                }
+                emailext subject: 'Informe de Análisis de código',
+                body: 'Adjunto encontrarás el informe del análisis',
+                to: "${params.correoDestino}",
+                attachmentsPattern: 'sonarqube-report.pdf'
+            }
+        }
+    }
+}
