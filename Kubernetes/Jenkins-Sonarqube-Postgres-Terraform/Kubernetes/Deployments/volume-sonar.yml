@@ -1,4 +1,26 @@
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sonarqube-data-pv
+  namespace: inspect-code-tools
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 8Gi
+  storageClassName: standard
+  hostPath:
+    path: /data_sonarqube/data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: tipo
+          operator: In
+          values:
+          - vp2
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: sonarqube-data-pvc
@@ -9,11 +31,35 @@ spec:
   resources:
     requests:
       storage: 8Gi
-
+  storageClassName: standard
+  volumeName: sonarqube-data-pv
+---
 apiVersion: v1
-kind: sonarqube-conf-pvc
+kind: PersistentVolume
 metadata:
-  name: sonar-pvc
+  name: sonarqube-conf-pv
+  namespace: inspect-code-tools
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 2Gi
+  storageClassName: standard
+  hostPath:
+    path: /data_sonarqube/conf
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: tipo
+          operator: In
+          values:
+          - vp2
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sonarqube-conf-pvc
   namespace: inspect-code-tools
 spec:
   accessModes:
@@ -21,7 +67,31 @@ spec:
   resources:
     requests:
       storage: 2Gi
-
+  storageClassName: standard
+  volumeName: sonarqube-conf-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sonarqube-extensions-pv
+  namespace: inspect-code-tools
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 5Gi
+  storageClassName: standard
+  hostPath:
+    path: /data_sonarqube/extensions
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: tipo
+          operator: In
+          values:
+          - vp2
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -33,7 +103,31 @@ spec:
   resources:
     requests:
       storage: 5Gi
-
+  storageClassName: standard
+  volumeName: sonarqube-extensions-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sonarqube-bundled-plugins-pv
+  namespace: inspect-code-tools
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 5Gi
+  storageClassName: standard
+  hostPath:
+    path: /data_sonarqube/plugins
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: tipo
+          operator: In
+          values:
+          - vp2
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -44,8 +138,32 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
-
+      storage: 5Gi
+  storageClassName: standard
+  volumeName: sonarqube-bundled-plugins-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sonarqube-logs-pv
+  namespace: inspect-code-tools
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 3Gi
+  storageClassName: standard
+  hostPath:
+    path: /data_sonarqube/logs
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: tipo
+          operator: In
+          values:
+          - vp2
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -57,3 +175,5 @@ spec:
   resources:
     requests:
       storage: 3Gi
+  storageClassName: standard
+  volumeName: sonarqube-logs-pv
